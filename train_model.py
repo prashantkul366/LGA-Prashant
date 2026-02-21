@@ -184,7 +184,8 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
             adapter_num_heads=config_sam.num_heads,
             downsample_rate=config_sam.downsample_rate,
             cff_ratio=config_sam.cff_ratio,
-            mlp_vit=config_sam.mlp_vit
+            mlp_vit=config_sam.mlp_vit,
+            text_cross=config_sam.text_cross
         )
         
         for name, para in model.named_parameters():
