@@ -141,7 +141,12 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
                             worker_init_fn=worker_init_fn,
                             num_workers=0,
                             pin_memory=True)
-                             
+
+    logger.info(f"Train dataset size: {len(train_dataset)}")
+    logger.info(f"Val dataset size: {len(val_dataset)}")
+    logger.info(f"Train steps per epoch: {len(train_loader)}")
+    logger.info(f"Val steps per epoch: {len(val_loader)}")    
+
     lr = config.learning_rate
     logger.info(model_type)
 
@@ -291,14 +296,17 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
         logger.info('Training with batch size : {}'.format(batch_size))
         train_loss, train_dice = train_one_epoch(train_loader, model, criterion, optimizer, writer, epoch, lr_scheduler, model_type, logger, 'train')  # sup
 
-        logger.info('Train epoch %d: loss(%.4f) Dice(%.4f)'%(epoch, train_loss, train_dice))
+        # logger.info('Train epoch %d: loss(%.4f) Dice(%.4f)'%(epoch, train_loss, train_dice))
+        logger.info(f"[Train] Epoch {epoch+1}: Loss={train_loss:.4f} | Dice={train_dice:.4f}")
         # evaluate on validation set
         logger.info('Validation')
         with torch.no_grad():
             model.eval()
             val_loss, val_dice = train_one_epoch(val_loader, model, criterion,
                                                  optimizer, writer, epoch, None, model_type, logger, 'val')
-        logger.info('Valid epoch %d: loss(%.4f) Dice(%.4f)'%(epoch, val_loss, val_dice))
+        # logger.info('Valid epoch %d: loss(%.4f) Dice(%.4f)'%(epoch, val_loss, val_dice))
+        logger.info(f"[Val]   Epoch {epoch+1}: Loss={val_loss:.4f} | Dice={val_dice:.4f}")
+        logger.info(f"Best Val Dice so far: {max_dice:.4f}")
         # =============================================================
         #       Save best model
         # =============================================================
