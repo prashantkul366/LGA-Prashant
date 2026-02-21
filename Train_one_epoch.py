@@ -68,8 +68,8 @@ def train_one_epoch(loader, model, criterion, optimizer, writer, epoch, lr_sched
         # ====================================================
 
         preds = model(images, text)
-        print("Pred shape:", preds.shape)
-        print("Mask shape:", masks.shape)
+        # print("Pred shape:", preds.shape)
+        # print("Mask shape:", masks.shape)
         out_loss = criterion(preds, masks.float())  # Loss
         # print(model.training)
         
