@@ -9,8 +9,8 @@ import torch
 from functools import partial
 
 from .modeling import ImageEncoderViT, MaskDecoder, PromptEncoder, Sam, TwoWayTransformer
-from .modeling.maskedTransformer.modified_sam_mask_decoder import ModifiedMaskDecoder
-from .modeling.maskedTransformer.Transformer import TwoWayTransformer_cross_first
+# from .modeling.maskedTransformer.modified_sam_mask_decoder import ModifiedMaskDecoder
+# from .modeling.maskedTransformer.Transformer import TwoWayTransformer_cross_first
 # from .modeling.maskedTransformer.mask_decoder_multi_scale import ModifiedMaskDecoder
 
 def build_sam_vit_h(checkpoint=None, adapter_flag=False, adapter_type='global', prompt_flag='simple', **kargs):
