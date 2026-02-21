@@ -125,7 +125,7 @@ class ImageEncoderViT(nn.Module):
                                                             mlp_vit=kwargs["mlp_vit"],
                                                             cff_ratio=kwargs["cff_ratio"], 
                                                             text_cross_flag=kwargs["text_cross"],
-                                                            only_mlp=kwargs["only_mlp"])
+                                                            only_mlp=kwargs.get("only_mlp", False))
                                         for i in range(len(self.interaction_indexes))
                                     ])
             # mlp_vit: 1 add mlp in adapter feature
@@ -143,7 +143,7 @@ class ImageEncoderViT(nn.Module):
                                                             downsample_rate=kwargs["downsample_rate"],
                                                             with_cffn=mlp_final,
                                                             mlp_dim=int(embed_dim*kwargs["cff_ratio"]),
-                                                            only_mlp=kwargs["only_mlp"])
+                                                            )
         #     self.text_convert = nn.Sequential(*[
             #         nn.Linear(4096, 768),
             #         nn.LayerNorm(768)
