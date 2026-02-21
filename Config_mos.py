@@ -88,15 +88,17 @@ def get_sam_config():
     config.finetune_all = False
     config.adapter_type = 'spa_text'
     config.attn_type = 'global'
-    config.num_heads = 1 
-    config.downsample_rate = 8 
+    config.num_heads = 1
+    config.downsample_rate = 8
     config.mlp_vit = 3
     config.cff_ratio = 0.25
     config.interaction_indexes = [0,4,8]
     config.text_cross = True
+    config.only_mlp = False            # ← ADD
+    config.prompt_flag = 'simple'      # ← ADD
 
-    # config.checkpoint = '/media/iipl/disk3/hu/models/sam_vit_b_01ec64.pth'
     config.checkpoint = '/content/drive/MyDrive/Prashant/LGA-Prashant/sam_vit_b_01ec64.pth'
     config.seg_head = 'sam'
     config.lora_rank = 0
+
     return config

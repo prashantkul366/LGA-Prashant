@@ -180,12 +180,15 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
         model = sam_model_registry[config_sam.model_type](
             checkpoint=config_sam.checkpoint,
             adapter_flag=config_sam.adapter,
+            adapter_type=config_sam.adapter_type,
+            prompt_flag=config_sam.prompt_flag,
             interaction_indexes=config_sam.interaction_indexes,
             adapter_num_heads=config_sam.num_heads,
             downsample_rate=config_sam.downsample_rate,
             cff_ratio=config_sam.cff_ratio,
-            mlp_vit=config_sam.mlp_vit,
-            text_cross=config_sam.text_cross
+            text_cross=config_sam.text_cross,
+            attn_type=config_sam.attn_type,
+            only_mlp=config_sam.only_mlp,
         )
         
         for name, para in model.named_parameters():
