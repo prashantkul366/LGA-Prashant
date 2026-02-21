@@ -59,6 +59,25 @@ class JointTransform:
         image = self.img_transform(image)
 
         mask = torch.from_numpy(mask).long()
+        # Convert to tensor if not already
+        if not isinstance(mask, torch.Tensor):
+            mask = torch.from_numpy(mask)
+
+        # If mask is H x W x 1 → convert to H x W
+        if mask.ndim == 3 and mask.shape[-1] == 1:
+            mask = mask.squeeze(-1)
+
+        # Now mask should be H x W
+        # Add batch + channel dimensions
+        mask = mask.unsqueeze(0).unsqueeze(0)  # (1,1,H,W)
+
+        mask = torch.nn.functional.interpolate(
+            mask.float(),
+            size=(1024, 1024),
+            mode='nearest'
+        )
+
+        mask = mask.squeeze(0)  # remove batch dim
         mask = torch.nn.functional.interpolate(
             mask.unsqueeze(0).unsqueeze(0).float(),
             size=(image.shape[1], image.shape[2]),
