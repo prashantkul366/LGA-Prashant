@@ -3,7 +3,8 @@ import torch.optim
 import os
 import time
 from utils import *
-import Config as config
+# import Config as config
+import Config_mos as config
 import warnings
 from torchinfo import summary
 from sklearn.metrics.pairwise import cosine_similarity
