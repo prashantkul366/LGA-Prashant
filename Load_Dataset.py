@@ -239,7 +239,10 @@ class ImageToImage2D(Dataset):
             with torch.no_grad():
                 outputs = self.bert_model(**inputs)
 
-            text_embedding = outputs.last_hidden_state[:, 0, :]
+            # text_embedding = outputs.last_hidden_state[:, 0, :]
+            # text_embedding = text_embedding.cpu()
+            text_embedding = outputs.last_hidden_state[:, 0, :]  # (1,768)
+            text_embedding = text_embedding.unsqueeze(1)         # (1,1,768)
             text_embedding = text_embedding.cpu()
 
         image = cv2.imread(image_path)
