@@ -247,7 +247,7 @@ class ImageToImage2D(Dataset):
 
         # read mask image
         mask = cv2.imread(mask_path, 0)
-        mask = cv2.resize(mask, (self.image_size, self.image_size))
+        # mask = cv2.resize(mask, (self.image_size, self.image_size))
         mask[mask <= 0] = 0
         mask[mask > 1] = 1
         # correct dimensions if needed
