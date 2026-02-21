@@ -75,12 +75,47 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
     # Load train and val data
     train_tf = get_augmentation_gray([config.img_size, config.img_size], train_flag=True)
     val_tf = get_augmentation_gray([config.img_size, config.img_size], train_flag=False)
+    # if config.task_name == 'MoNuSeg' or config.task_name == 'Kvasir_80_20_Text':
+    #     train_text = read_text(config.train_dataset + 'Train_text.xlsx')
+    #     val_text = read_text(config.val_dataset + 'Val_text.xlsx')
+    #     train_dataset = ImageToImage2D(config.train_dataset, config.task_name, train_text, train_tf,
+    #                                    image_size=config.img_size)
+    #     val_dataset = ImageToImage2D(config.val_dataset, config.task_name, val_text, val_tf, image_size=config.img_size)
     if config.task_name == 'MoNuSeg':
-        train_text = read_text(config.train_dataset + 'Train_text.xlsx')
-        val_text = read_text(config.val_dataset + 'Val_text.xlsx')
-        train_dataset = ImageToImage2D(config.train_dataset, config.task_name, train_text, train_tf,
-                                       image_size=config.img_size)
-        val_dataset = ImageToImage2D(config.val_dataset, config.task_name, val_text, val_tf, image_size=config.img_size)
+        train_text = read_text(config.text_train)
+        val_text = read_text(config.text_val)
+
+        train_dataset = ImageToImage2D(config.train_dataset, config.text_train,
+                                    config.task_name, train_tf,
+                                    image_size=config.img_size,
+                                    mean_text_flag=config.mean_text_flag)
+
+        val_dataset = ImageToImage2D(config.val_dataset, config.text_val,
+                                    config.task_name, val_tf,
+                                    image_size=config.img_size,
+                                    mean_text_flag=config.mean_text_flag)
+        
+    if config.task_name == 'Kvasir_80_20_Text':
+        train_text = read_text(config.text_train)
+        val_text = read_text(config.text_val)
+
+        train_dataset = ImageToImage2D(
+            config.train_dataset,
+            train_text,
+            config.task_name,
+            train_tf,
+            image_size=config.img_size,
+            mean_text_flag=config.mean_text_flag
+        )
+
+        val_dataset = ImageToImage2D(
+            config.val_dataset,
+            val_text,
+            config.task_name,
+            val_tf,
+            image_size=config.img_size,
+            mean_text_flag=config.mean_text_flag
+        )
     elif config.task_name == 'Covid19' or config.task_name == 'MosMed':
 
         text_train = config.text_train

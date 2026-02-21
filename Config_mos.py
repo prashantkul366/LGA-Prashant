@@ -22,11 +22,12 @@ img_size = 1024 # sam
 print_frequency = 20
 save_frequency = 5000
 vis_frequency = 10
-early_stopping_patience = 50
+early_stopping_patience = 100
 
 pretrain = False
 # task_name = 'MoNuSeg' 
-task_name = 'MosMed' # Covid19, MosMed
+# task_name = 'MosMed' # Covid19, MosMed
+task_name = 'Kvasir_80_20_Text'
 learning_rate = 1e-4  # MoNuSeg: 1e-3, Covid19: 3e-4
 batch_size = 2  # For LViT-T, 2 is better than 4
 
@@ -36,11 +37,14 @@ model_name = 'sam'
 
 mean_text_flag = True
 
-train_dataset = ''
-val_dataset = ''
+# train_dataset = ''
+# val_dataset = ''
 
-text_train = ''
-text_val = ''
+train_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train'
+val_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val'
+
+text_train = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train/Train_text.xlsx'
+text_val = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val/Val_text.xlsx'
 
 session_name = 'test' + '_' + time.strftime('%m.%d_%Hh%M')
 save_path = task_name + '/' + model_name + '/' + session_name + '/'

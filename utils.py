@@ -16,6 +16,19 @@ from torch.autograd import Variable
 from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import LambdaLR
 
+import pandas as pd
+
+def read_text(excel_path):
+    df = pd.read_excel(excel_path)
+
+    text_dict = {}
+    for _, row in df.iterrows():
+        image_name = row['image_name']
+        prompt = row['prompt_text']
+        text_dict[image_name] = prompt
+
+    return text_dict
+
 class WeightedBCE(nn.Module):
 
     def __init__(self, weights=[0.4, 0.6]):
@@ -551,15 +564,15 @@ def get_cosine_schedule_with_warmup(optimizer,
     return LambdaLR(optimizer, _lr_lambda, last_epoch)
 
 
-def read_text(filename):
-    df = pd.read_excel(filename)
-    text = {}
-    for i in df.index.values:  # Gets the index of the row number and traverses it
-        count = len(df.Description[i].split())
-        if count < 9:
-            df.Description[i] = df.Description[i] + ' EOF XXX' * (9 - count)
-        text[df.Image[i]] = df.Description[i]
-    return text  # return dict (key: values)
+# def read_text(filename):
+#     df = pd.read_excel(filename)
+#     text = {}
+#     for i in df.index.values:  # Gets the index of the row number and traverses it
+#         count = len(df.Description[i].split())
+#         if count < 9:
+#             df.Description[i] = df.Description[i] + ' EOF XXX' * (9 - count)
+#         text[df.Image[i]] = df.Description[i]
+#     return text  # return dict (key: values)
 
 
 def read_text_LV(filename):

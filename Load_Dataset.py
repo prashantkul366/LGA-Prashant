@@ -145,11 +145,12 @@ class LV2D(Dataset):
 
 class ImageToImage2D(Dataset):
 
-    def __init__(self, dataset_path: str, text_path: str, task_name: str, joint_transform: Callable = None,
+    def __init__(self, dataset_path: str, text_dict: dict, task_name: str, joint_transform: Callable = None,
                  one_hot_mask: int = False,
                  image_size: int = 224, mean_text_flag = True) -> None:
         self.dataset_path = dataset_path
-        self.text_path = text_path
+        # self.text_path = text_path
+        self.text_dict = text_dict
         self.image_size = image_size
         self.task_name = task_name
         if self.task_name == 'Covid19':
@@ -158,7 +159,10 @@ class ImageToImage2D(Dataset):
         elif self.task_name == 'MosMed':
             self.input_path = os.path.join(dataset_path, 'image')
             self.output_path = os.path.join(dataset_path, 'mask')
-
+        elif self.task_name == 'Kvasir_80_20_Text':
+            self.input_path = os.path.join(dataset_path, 'images')
+            self.output_path = os.path.join(dataset_path, 'masks')
+        
         self.images_list = os.listdir(self.input_path)
         self.mask_list = os.listdir(self.output_path)
         self.one_hot_mask = one_hot_mask
@@ -176,6 +180,17 @@ class ImageToImage2D(Dataset):
 
     def __len__(self):
         return len(os.listdir(self.input_path))
+
+    def simple_text_embedding(self, text):
+        # Simple character-level embedding (safe for now)
+        text = text.lower()
+        max_len = 50
+        vec = np.zeros(max_len)
+
+        for i, char in enumerate(text[:max_len]):
+            vec[i] = ord(char) / 128.0
+
+        return vec.reshape(1, -1)
 
     def __getitem__(self, idx):
 
@@ -195,7 +210,21 @@ class ImageToImage2D(Dataset):
             image_path = os.path.join(self.input_path, mask_filename)
             mask_path = os.path.join(self.output_path, mask_filename)
             text_path = '%s/%s.npy'%(self.text_path, base_name)
-        
+
+        elif self.task_name == 'Kvasir_80_20_Text':
+            image_filename = self.images_list[idx]
+            base_name = os.path.splitext(image_filename)[0]
+            mask_filename = base_name + '.png'
+
+            image_path = os.path.join(self.input_path, image_filename)
+            mask_path = os.path.join(self.output_path, mask_filename)
+
+            # 🔥 Get prompt text
+            prompt = self.text_dict[image_filename]
+
+            # Convert text to embedding (simple version)
+            text_embedding = self.simple_text_embedding(prompt)
+
         image = cv2.imread(image_path)
         image = cv2.resize(image, (self.image_size, self.image_size))
 
@@ -233,8 +262,12 @@ class ImageToImage2D(Dataset):
         
         # 
         mask = cv2.resize(mask, (256, 256), interpolation=cv2.INTER_NEAREST)
-        sample = {'image': self.image2tensor(image), 'label': self.mask2tensor(mask), 'text': torch.from_numpy(text.astype(np.float32))}
-
+        # sample = {'image': self.image2tensor(image), 'label': self.mask2tensor(mask), 'text': torch.from_numpy(text.astype(np.float32))}
+        sample = {
+            'image': self.image2tensor(image),
+            'label': self.mask2tensor(mask),
+            'text': torch.from_numpy(text_embedding.astype(np.float32))
+        }
         return sample, image_filename
 
     def image2tensor(self, image):
