@@ -167,13 +167,25 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
         model2_dict.update(state_dict)
         model.load_state_dict(model2_dict)
         logger.info('Load successful!')
+    # elif model_type == 'sam':
+    #     config_sam = config.get_sam_config()
+    #     model = sam_model_registry[config_sam.model_type](checkpoint=config_sam.checkpoint, adapter_flag=config_sam.adapter, 
+    #                                                     interaction_indexes=config_sam.interaction_indexes,
+    #                                                     adapter_num_heads=config_sam.num_heads,
+    #                                                     downsample_rate=config_sam.downsample_rate,
+    #                                                     cff_ratio=config_sam.cff_ratio)
+    
     elif model_type == 'sam':
         config_sam = config.get_sam_config()
-        model = sam_model_registry[config_sam.model_type](checkpoint=config_sam.checkpoint, adapter_flag=config_sam.adapter, 
-                                                        interaction_indexes=config_sam.interaction_indexes,
-                                                        adapter_num_heads=config_sam.num_heads,
-                                                        downsample_rate=config_sam.downsample_rate,
-                                                        cff_ratio=config_sam.cff_ratio)
+        model = sam_model_registry[config_sam.model_type](
+            checkpoint=config_sam.checkpoint,
+            adapter_flag=config_sam.adapter,
+            interaction_indexes=config_sam.interaction_indexes,
+            adapter_num_heads=config_sam.num_heads,
+            downsample_rate=config_sam.downsample_rate,
+            cff_ratio=config_sam.cff_ratio,
+            mlp_vit=config_sam.mlp_vit
+        )
         
         for name, para in model.named_parameters():
             if 'mask_decoder' in name:
