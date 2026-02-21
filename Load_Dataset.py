@@ -10,7 +10,9 @@ from typing import Callable
 import os
 import cv2
 from scipy import ndimage
-from bert_embedding import BertEmbedding
+# from bert_embedding import BertEmbedding
+from transformers import BertTokenizer, BertModel
+import torch
 
 #Convert image to torch.Tensor and divide by 255 if image or mask are uint8 type.
 # from albumentations.pytorch import ToTensor
@@ -109,7 +111,7 @@ class LV2D(Dataset):
         self.one_hot_mask = one_hot_mask
         self.rowtext = row_text
         self.task_name = task_name
-        self.bert_embedding = BertEmbedding()
+        # self.bert_embedding = BertEmbedding()
 
         if joint_transform:
             self.joint_transform = joint_transform
@@ -153,6 +155,16 @@ class ImageToImage2D(Dataset):
         self.text_dict = text_dict
         self.image_size = image_size
         self.task_name = task_name
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.bert_model = BertModel.from_pretrained('bert-base-uncased')
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.bert_model.to(self.device)
+        self.bert_model.eval()
+
+        for param in self.bert_model.parameters():
+            param.requires_grad = False
+
         if self.task_name == 'Covid19':
             self.input_path = os.path.join(dataset_path, 'img')
             self.output_path = os.path.join(dataset_path, 'labelcol')
@@ -180,17 +192,6 @@ class ImageToImage2D(Dataset):
 
     def __len__(self):
         return len(os.listdir(self.input_path))
-
-    def simple_text_embedding(self, text):
-        # Simple character-level embedding (safe for now)
-        text = text.lower()
-        max_len = 50
-        vec = np.zeros(max_len)
-
-        for i, char in enumerate(text[:max_len]):
-            vec[i] = ord(char) / 128.0
-
-        return vec.reshape(1, -1)
 
     def __getitem__(self, idx):
 
@@ -223,7 +224,22 @@ class ImageToImage2D(Dataset):
             prompt = self.text_dict[image_filename]
 
             # Convert text to embedding (simple version)
-            text_embedding = self.simple_text_embedding(prompt)
+            # text_embedding = self.simple_text_embedding(prompt)
+            prompt = self.text_dict[image_filename]
+
+            inputs = self.tokenizer(
+                prompt,
+                return_tensors="pt",
+                padding='max_length',
+                truncation=True,
+                max_length=32
+            ).to(self.device)
+
+            with torch.no_grad():
+                outputs = self.bert_model(**inputs)
+
+            text_embedding = outputs.last_hidden_state[:, 0, :]
+            text_embedding = text_embedding.cpu()
 
         image = cv2.imread(image_path)
         image = cv2.resize(image, (self.image_size, self.image_size))
@@ -266,7 +282,7 @@ class ImageToImage2D(Dataset):
         sample = {
             'image': self.image2tensor(image),
             'label': self.mask2tensor(mask),
-            'text': torch.from_numpy(text_embedding.astype(np.float32))
+            'text': text_embedding.squeeze(0)
         }
         return sample, image_filename
 
