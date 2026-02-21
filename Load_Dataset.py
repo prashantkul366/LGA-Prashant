@@ -126,7 +126,7 @@ class LV2D(Dataset):
 
         mask_filename = self.mask_list[idx]  # Co
         mask = cv2.imread(os.path.join(self.output_path, mask_filename), 0)
-        mask = cv2.resize(mask, (self.image_size, self.image_size))
+        # mask = cv2.resize(mask, (self.image_size, self.image_size))
         mask[mask <= 0] = 0
         mask[mask > 0] = 1
         mask = correct_dims(mask)
