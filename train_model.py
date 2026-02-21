@@ -198,7 +198,7 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
             cff_ratio=config_sam.cff_ratio,
             text_cross=config_sam.text_cross,
             attn_type=config_sam.attn_type,
-            mlp_vit=config_sam.mlp_vit,
+            # mlp_vit=config_sam.mlp_vit,
             only_mlp=config_sam.only_mlp,
         )
         
