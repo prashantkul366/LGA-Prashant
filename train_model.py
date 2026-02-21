@@ -187,21 +187,26 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
         #     mlp_vit=config_sam.mlp_vit,
         #     text_cross=config_sam.text_cross
         # )
+        # model = sam_model_registry[config_sam.model_type](
+        #     checkpoint=config_sam.checkpoint,
+        #     adapter_flag=config_sam.adapter,
+        #     adapter_type=config_sam.adapter_type,
+        #     prompt_flag=config_sam.prompt_flag,
+        #     interaction_indexes=config_sam.interaction_indexes,
+        #     adapter_num_heads=config_sam.num_heads,
+        #     downsample_rate=config_sam.downsample_rate,
+        #     cff_ratio=config_sam.cff_ratio,
+        #     text_cross=config_sam.text_cross,
+        #     attn_type=config_sam.attn_type,
+        #     # mlp_vit=config_sam.mlp_vit,
+        #     only_mlp=config_sam.only_mlp,
+        # )
         model = sam_model_registry[config_sam.model_type](
             checkpoint=config_sam.checkpoint,
             adapter_flag=config_sam.adapter,
-            adapter_type=config_sam.adapter_type,
-            prompt_flag=config_sam.prompt_flag,
-            interaction_indexes=config_sam.interaction_indexes,
-            adapter_num_heads=config_sam.num_heads,
-            downsample_rate=config_sam.downsample_rate,
-            cff_ratio=config_sam.cff_ratio,
-            text_cross=config_sam.text_cross,
-            attn_type=config_sam.attn_type,
-            # mlp_vit=config_sam.mlp_vit,
-            only_mlp=config_sam.only_mlp,
+            **{k: v for k, v in config_sam.items()
+            if k not in ["model_type", "checkpoint", "adapter", "finetune_all"]}
         )
-        
         for name, para in model.named_parameters():
             if 'mask_decoder' in name:
                 para.requires_grad_(True)
