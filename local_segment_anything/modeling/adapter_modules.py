@@ -88,8 +88,17 @@ class Attention(nn.Module):
 
         return out
 
+# class InteractionBlock_global(nn.Module):
+#     def __init__(self, embed_dim, num_heads=8, downsample_rate=1, cff_ratio=0.5,):
 class InteractionBlock_global(nn.Module):
-    def __init__(self, embed_dim, num_heads=8, downsample_rate=1, cff_ratio=0.5,):
+    def __init__(self,
+                 embed_dim,
+                 num_heads,
+                 downsample_rate,
+                 mlp_vit,                 # ← ADD THIS
+                 cff_ratio,
+                 text_cross_flag,
+                 only_mlp):
         super().__init__()
         
         self.injector = injector_global(embed_dim, num_heads, downsample_rate, with_cffn=True, 

@@ -212,6 +212,7 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
             adapter_type=config_sam.adapter_type,
             attn_type=config_sam.attn_type,
             only_mlp=config_sam.only_mlp,
+            mlp_vit=config_sam.mlp_vit,
         )
         for name, para in model.named_parameters():
             if 'mask_decoder' in name:
