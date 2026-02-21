@@ -177,6 +177,7 @@ class ImageToImage2D(Dataset):
         
         self.images_list = os.listdir(self.input_path)
         self.mask_list = os.listdir(self.output_path)
+        print(f"length of datset {len(self.images_list)}")
         self.one_hot_mask = one_hot_mask
         
         self.mean_text_flag = mean_text_flag

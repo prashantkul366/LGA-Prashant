@@ -12,7 +12,8 @@ from nets.LViT import LViT
 from torch.utils.data import DataLoader
 import logging
 from Train_one_epoch import train_one_epoch, print_summary
-import Config as config
+# import Config as config
+import Config_mos as config
 from torchvision import transforms
 from utils import CosineAnnealingWarmRestarts, get_cosine_schedule_with_warmup, \
             WeightedDiceBCE, WeightedDiceCE, read_text, read_text_LV, save_on_batch
@@ -96,6 +97,7 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
                                     mean_text_flag=config.mean_text_flag)
         
     if config.task_name == 'Kvasir_80_20_Text':
+        print(" Task : Kvasir Text")
         train_text = read_text(config.text_train)
         val_text = read_text(config.text_val)
 
@@ -292,4 +294,5 @@ if __name__ == '__main__':
     # copy xlsx file
 
     logger = logger_config(log_path=config.logger_path)
+    print("at logger complete")
     model = main_loop(model_type=config.model_name, tensorboard=True)
