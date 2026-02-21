@@ -132,14 +132,14 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
                               batch_size=config.batch_size,
                               shuffle=True,
                               worker_init_fn=worker_init_fn,
-                              num_workers=8,
+                              num_workers=0,
                               pin_memory=True)
 
     val_loader = DataLoader(val_dataset,
                             batch_size=config.batch_size,
                             shuffle=True,
                             worker_init_fn=worker_init_fn,
-                            num_workers=2,
+                            num_workers=0,
                             pin_memory=True)
                              
     lr = config.learning_rate
@@ -252,8 +252,10 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
         # =============================================================
         if val_dice > max_dice:
             # if epoch + 1 > 5:
+            # logger.info(
+            #     '\t Saving best model, mean dice increased from: {:.4f} to {:.4f}'.format(max_dice, test_dice))
             logger.info(
-                '\t Saving best model, mean dice increased from: {:.4f} to {:.4f}'.format(max_dice, test_dice))
+            '\t Saving best model, mean dice increased from: {:.4f} to {:.4f}'.format(max_dice, val_dice))
             max_dice = val_dice
             best_epoch = epoch + 1
             save_checkpoint({'epoch': epoch,
@@ -290,7 +292,8 @@ if __name__ == '__main__':
     if not os.path.isdir(config.save_path):
         os.makedirs(config.save_path)
     import shutil
-    shutil.copy('Config.py', '%s/Config_ori.py'%(config.save_path))
+    # shutil.copy('Config.py', '%s/Config_ori.py'%(config.save_path))
+    shutil.copy('Config_mos.py', '%s/Config_ori.py'%(config.save_path))
     # copy xlsx file
 
     logger = logger_config(log_path=config.logger_path)
