@@ -53,39 +53,30 @@ class JointTransform:
                 transforms.ToPILImage(),
                 self.resize,
                 transforms.ToTensor(),
-            ])
-
+                ])
+            
     def __call__(self, image, mask):
         image = self.img_transform(image)
 
-        mask = torch.from_numpy(mask).long()
-        # Convert to tensor if not already
-        if not isinstance(mask, torch.Tensor):
-            mask = torch.from_numpy(mask)
+        # mask: numpy H x W or H x W x 1
+        mask = torch.from_numpy(mask)
 
-        # If mask is H x W x 1 → convert to H x W
-        if mask.ndim == 3 and mask.shape[-1] == 1:
+        if mask.ndim == 3:
             mask = mask.squeeze(-1)
 
-        # Now mask should be H x W
-        # Add batch + channel dimensions
-        mask = mask.unsqueeze(0).unsqueeze(0)  # (1,1,H,W)
+        # add channel dimension → (1, H, W)
+        mask = mask.unsqueeze(0).float()
 
+        # resize to image spatial size
         mask = torch.nn.functional.interpolate(
-            mask.float(),
-            size=(1024, 1024),
-            mode='nearest'
-        )
-
-        mask = mask.squeeze(0)  # remove batch dim
-        mask = torch.nn.functional.interpolate(
-            mask.unsqueeze(0).unsqueeze(0).float(),
+            mask.unsqueeze(0),   # (1,1,H,W)
             size=(image.shape[1], image.shape[2]),
             mode="nearest"
-        ).squeeze(0).squeeze(0).long()
+        ).squeeze(0)
+
+        mask = mask.long()
 
         return {"image": image, "mask": mask}
-
 
 def get_augmentation_gray(image_size, train_flag=True):
     return JointTransform(image_size, train_flag)
