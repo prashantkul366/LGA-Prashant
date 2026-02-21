@@ -280,9 +280,14 @@ class ImageToImage2D(Dataset):
         # 
         # mask = cv2.resize(mask, (256, 256), interpolation=cv2.INTER_NEAREST)
         # sample = {'image': self.image2tensor(image), 'label': self.mask2tensor(mask), 'text': torch.from_numpy(text.astype(np.float32))}
+        # sample = {
+        #     'image': self.image2tensor(image),
+        #     'label': self.mask2tensor(mask),
+        #     'text': text_embedding.squeeze(0)
+        # }
         sample = {
-            'image': self.image2tensor(image),
-            'label': self.mask2tensor(mask),
+            'image': image.float(),
+            'label': mask.long(),
             'text': text_embedding.squeeze(0)
         }
         return sample, image_filename
