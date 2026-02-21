@@ -246,10 +246,10 @@ class ImageToImage2D(Dataset):
         # # use average
         # text = np.mean(text, axis=0, keepdims=True)
         # text = np.load('%s/%s.npy'%(self.text_path, mask_filename))
-        if self.mean_text_flag:
-            text = np.mean(np.load(text_path), axis=0, keepdims=True)
-        else:
-            text = np.load(text_path)
+        # if self.mean_text_flag:
+        #     text = np.mean(np.load(text_path), axis=0, keepdims=True)
+        # else:
+        #     text = np.load(text_path)
         
         if self.one_hot_mask:
             assert self.one_hot_mask > 0, 'one_hot_mask must be nonnegative'

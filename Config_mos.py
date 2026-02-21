@@ -85,7 +85,7 @@ def get_sam_config():
 
     config.model_type = 'vit_b'
     config.adapter = True
-    config.finetune_all = True
+    config.finetune_all = False
     config.adapter_type = 'spa_text'
     config.attn_type = 'global'
     config.num_heads = 1 
@@ -95,7 +95,8 @@ def get_sam_config():
     config.interaction_indexes = [0,4,8]
     config.text_cross = True
 
-    config.checkpoint = '/media/iipl/disk3/hu/models/sam_vit_b_01ec64.pth'
+    # config.checkpoint = '/media/iipl/disk3/hu/models/sam_vit_b_01ec64.pth'
+    config.checkpoint = '/content/drive/MyDrive/Prashant/LGA-Prashant/sam_vit_b_01ec64.pth'
     config.seg_head = 'sam'
     config.lora_rank = 0
     return config
