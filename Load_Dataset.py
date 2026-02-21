@@ -280,6 +280,12 @@ class ImageToImage2D(Dataset):
             image = transformed['image']
             mask = transformed['mask']
         
+        mask = torch.nn.functional.interpolate(
+            mask.unsqueeze(0).float(),  # (1,1,H,W)
+            size=(256, 256),
+            mode="nearest"
+        ).squeeze(0)
+        
         # 
         # mask = cv2.resize(mask, (256, 256), interpolation=cv2.INTER_NEAREST)
         # sample = {'image': self.image2tensor(image), 'label': self.mask2tensor(mask), 'text': torch.from_numpy(text.astype(np.float32))}
