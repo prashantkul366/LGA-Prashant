@@ -145,6 +145,44 @@ class InteractionBlock_global(nn.Module):
 
 #         return vit_feature
 
+class injector_global(nn.Module):
+    def __init__(self, embed_dim, num_heads=8, downsample_rate=1,
+                 with_cffn=True, mlp_dim=2048, mlp_activation=nn.ReLU):
+        super().__init__()
+        
+        self.gamma = nn.Parameter(torch.zeros(embed_dim), requires_grad=True)
+        self.vit_norm = nn.LayerNorm(embed_dim)
+        self.adapter_norm = nn.LayerNorm(embed_dim)
+        self.atten = Attention(
+            embedding_dim=embed_dim,
+            num_heads=num_heads,
+            downsample_rate=downsample_rate
+        )
+
+        self.with_cffn = with_cffn
+        if self.with_cffn:
+            self.mlp = MLPBlock(embed_dim, mlp_dim, mlp_activation)
+            self.mlp_norm = nn.LayerNorm(embed_dim)
+            self.drop_path = nn.Identity()
+
+    def forward(self, vit_feature, adapter_feature):
+        vit_feature_norm = self.vit_norm(vit_feature)
+        adapter_feature_norm = self.adapter_norm(adapter_feature)
+
+        attn = self.atten(
+            q=vit_feature_norm,
+            k=adapter_feature_norm,
+            v=adapter_feature_norm
+        )
+
+        vit_feature = vit_feature + self.gamma * attn
+
+        if self.with_cffn:
+            vit_feature = vit_feature + self.drop_path(
+                self.mlp(self.mlp_norm(vit_feature))
+            )
+
+        return vit_feature
     
 class extractor_global(nn.Module):
     def __init__(self, embed_dim, num_heads=8, downsample_rate=1, mlp_dim=2048, mlp_activation=nn.ReLU, with_cffn=True):
