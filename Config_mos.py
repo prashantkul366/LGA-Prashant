@@ -25,6 +25,7 @@ vis_frequency = 10
 early_stopping_patience = 100
 
 pretrain = False
+pretrained_model = ""
 # task_name = 'MoNuSeg' 
 # task_name = 'MosMed' # Covid19, MosMed
 task_name = 'Kvasir_80_20_Text'
