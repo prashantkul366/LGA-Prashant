@@ -8,7 +8,7 @@ import numpy as np
 import random
 from torch.backends import cudnn
 from Load_Dataset import RandomGenerator, ValGenerator, ImageToImage2D, LV2D
-from nets.LViT import LViT
+# from nets.LViT import LViT
 from torch.utils.data import DataLoader
 import logging
 from Train_one_epoch import train_one_epoch, print_summary
