@@ -174,6 +174,9 @@ class ImageToImage2D(Dataset):
         elif self.task_name == 'Kvasir_80_20_Text':
             self.input_path = os.path.join(dataset_path, 'images')
             self.output_path = os.path.join(dataset_path, 'masks')
+        elif self.task_name == 'BUSI_80-20_text':
+            self.input_path = os.path.join(dataset_path, 'images')
+            self.output_path = os.path.join(dataset_path, 'masks')
         
         self.images_list = os.listdir(self.input_path)
         self.mask_list = os.listdir(self.output_path)
@@ -213,7 +216,7 @@ class ImageToImage2D(Dataset):
             mask_path = os.path.join(self.output_path, mask_filename)
             text_path = '%s/%s.npy'%(self.text_path, base_name)
 
-        elif self.task_name == 'Kvasir_80_20_Text':
+        elif self.task_name == 'Kvasir_80_20_Text' or self.task_name == 'BUSI_80-20_text':
             image_filename = self.images_list[idx]
             base_name = os.path.splitext(image_filename)[0]
             mask_filename = base_name + '.png'
