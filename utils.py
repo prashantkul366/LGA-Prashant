@@ -35,7 +35,7 @@ def read_text(excel_path):
     text_dict = {}
     for _, row in df.iterrows():
         image_name = row['Filename']
-        prompt = row['text']
+        prompt = row['Text']
         text_dict[image_name] = prompt
 
     return text_dict
