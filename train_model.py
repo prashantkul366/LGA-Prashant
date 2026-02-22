@@ -96,8 +96,8 @@ def main_loop(batch_size=config.batch_size, model_type='', tensorboard=True):
                                     image_size=config.img_size,
                                     mean_text_flag=config.mean_text_flag)
         
-    if config.task_name == 'Kvasir_80_20_Text':
-        print(" Task : Kvasir Text")
+    if config.task_name == 'Kvasir_80_20_Text' or config.task_name == 'BUSI_80-20_text':
+        print(" Task : BUSI Text")
         train_text = read_text(config.text_train)
         val_text = read_text(config.text_val)
 
