@@ -145,6 +145,10 @@ def test():
     model = load_model()
     test_loader = load_test_dataset()
 
+    print("Task:", config.task_name)
+    print("Dataset path:", config.val_dataset)
+    # print("Model path:", best_model_path)
+    print("Image size:", config.img_size)
     print("Testing dataset path:", config.val_dataset)
     print("Text file:", config.text_val)
     # sens_sum = 0
