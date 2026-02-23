@@ -175,7 +175,12 @@ def test():
             text = sampled_batch["text"].cuda()
 
             preds = model(images, text)
-
+            if preds.shape != masks.shape:
+                masks = torch.nn.functional.interpolate(
+                    masks.float(),
+                    size=preds.shape[-2:],
+                    mode="nearest"
+                )
             if i == 0:
                 print("Image shape:", images.shape)
                 print("Mask shape:", masks.shape)
