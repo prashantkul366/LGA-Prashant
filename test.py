@@ -184,9 +184,18 @@ def test():
             # dice_sum += dice
             # iou_sum += iou
 
+            # pred_prob = torch.sigmoid(preds)
+            # pred_mask = (pred_prob > 0.5).float()
+            # mask = (masks > 0.5).float()
             pred_prob = torch.sigmoid(preds)
             pred_mask = (pred_prob > 0.5).float()
-            mask = (masks > 0.5).float()
+
+            mask = torch.nn.functional.interpolate(
+                masks.float(),
+                size=preds.shape[-2:],
+                mode="nearest"
+            )
+            mask = (mask > 0.5).float()
 
             if i == 0:
                 print("Image shape:", images.shape)
