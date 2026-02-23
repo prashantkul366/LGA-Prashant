@@ -18,27 +18,27 @@ from torch.optim.lr_scheduler import LambdaLR
 
 import pandas as pd
 
-def read_text(excel_path):
-    df = pd.read_excel(excel_path)
-
-    text_dict = {}
-    for _, row in df.iterrows():
-        image_name = row['image_name']
-        prompt = row['prompt_text']
-        text_dict[image_name] = prompt
-
-    return text_dict
-
 # def read_text(excel_path):
 #     df = pd.read_excel(excel_path)
 
 #     text_dict = {}
 #     for _, row in df.iterrows():
-#         image_name = row['Filename']
-#         prompt = row['Text']
+#         image_name = row['image_name']
+#         prompt = row['prompt_text']
 #         text_dict[image_name] = prompt
 
 #     return text_dict
+
+def read_text(excel_path):
+    df = pd.read_excel(excel_path)
+
+    text_dict = {}
+    for _, row in df.iterrows():
+        image_name = row['Filename']
+        prompt = row['Text']
+        text_dict[image_name] = prompt
+
+    return text_dict
 
 class WeightedBCE(nn.Module):
 
