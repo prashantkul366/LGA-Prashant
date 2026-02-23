@@ -166,40 +166,40 @@ def test():
     os.makedirs(save_path, exist_ok=True)
 
     with torch.no_grad():
-    pbar = tqdm(test_loader, desc="Testing", ncols=120)
+        pbar = tqdm(test_loader, desc="Testing", ncols=120)
 
-    for i, (sampled_batch, names) in enumerate(pbar):
+        for i, (sampled_batch, names) in enumerate(pbar):
 
-        images = sampled_batch["image"].cuda()
-        masks = sampled_batch["label"].cuda()
-        text = sampled_batch["text"].cuda()
+            images = sampled_batch["image"].cuda()
+            masks = sampled_batch["label"].cuda()
+            text = sampled_batch["text"].cuda()
 
-        preds = model(images, text)
+            preds = model(images, text)
 
-        if i == 0:
-            print("Image shape:", images.shape)
-            print("Mask shape:", masks.shape)
-            print("Pred min/max:", preds.min().item(), preds.max().item())
+            if i == 0:
+                print("Image shape:", images.shape)
+                print("Mask shape:", masks.shape)
+                print("Pred min/max:", preds.min().item(), preds.max().item())
 
-        # SAME AS TRAINING
-        dice = criterion._show_dice(preds, masks.float())
-        iou = iou_on_batch(masks, preds)
+            # SAME AS TRAINING
+            dice = criterion._show_dice(preds, masks.float())
+            iou = iou_on_batch(masks, preds)
 
-        dice_sum += dice
-        iou_sum += iou
+            dice_sum += dice
+            iou_sum += iou
 
-        pbar.set_postfix({
-            "Dice": f"{dice_sum/(i+1):.4f}",
-            "IoU": f"{iou_sum/(i+1):.4f}"
-        })
+            pbar.set_postfix({
+                "Dice": f"{dice_sum/(i+1):.4f}",
+                "IoU": f"{iou_sum/(i+1):.4f}"
+            })
 
-        # OPTIONAL: save predictions
-        pred_mask = (preds > 0.5).float()
-        pred_np = pred_mask[0, 0].cpu().numpy() * 255
-        pred_np = pred_np.astype(np.uint8)
+            # OPTIONAL: save predictions
+            pred_mask = (preds > 0.5).float()
+            pred_np = pred_mask[0, 0].cpu().numpy() * 255
+            pred_np = pred_np.astype(np.uint8)
 
-        save_file = os.path.join(save_path, names[0] + "_pred.png")
-        cv2.imwrite(save_file, pred_np)
+            save_file = os.path.join(save_path, names[0] + "_pred.png")
+            cv2.imwrite(save_file, pred_np)
 
     print("\n================ Final Test Results ================")
     print(f"Dice (F1-score) : {dice_sum/len(test_loader):.4f}")
