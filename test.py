@@ -144,6 +144,10 @@ def test():
     logger = logger_config()
     model = load_model()
     test_loader = load_test_dataset()
+    criterion = WeightedDiceBCE(dice_weight=1, BCE_weight=1)
+
+    dice_sum = 0
+    iou_sum = 0
 
     print("Task:", config.task_name)
     print("Dataset path:", config.val_dataset)
@@ -157,102 +161,53 @@ def test():
     # dice_sum = 0
     # iou_sum = 0
 
-    TP_total = 0
-    TN_total = 0
-    FP_total = 0
-    FN_total = 0
 
     save_path = os.path.join(config.save_path, "test_predictions")
     os.makedirs(save_path, exist_ok=True)
 
     with torch.no_grad():
-        pbar = tqdm(test_loader, desc="Testing", ncols=120)
+    pbar = tqdm(test_loader, desc="Testing", ncols=120)
 
-        for i, (sampled_batch, names) in enumerate(pbar):
-            
-            images = sampled_batch["image"].cuda()
-            masks = sampled_batch["label"].cuda()
-            text = sampled_batch["text"].cuda()
+    for i, (sampled_batch, names) in enumerate(pbar):
 
-            preds = model(images, text)
+        images = sampled_batch["image"].cuda()
+        masks = sampled_batch["label"].cuda()
+        text = sampled_batch["text"].cuda()
 
-            # sens, spec, acc, dice, iou = compute_metrics(preds, masks)
+        preds = model(images, text)
 
-            # sens_sum += sens
-            # spec_sum += spec
-            # acc_sum += acc
-            # dice_sum += dice
-            # iou_sum += iou
+        if i == 0:
+            print("Image shape:", images.shape)
+            print("Mask shape:", masks.shape)
+            print("Pred min/max:", preds.min().item(), preds.max().item())
 
-            # pred_prob = torch.sigmoid(preds)
-            # pred_mask = (pred_prob > 0.5).float()
-            # mask = (masks > 0.5).float()
-            pred_prob = torch.sigmoid(preds)
-            pred_mask = (pred_prob > 0.5).float()
+        # SAME AS TRAINING
+        dice = criterion._show_dice(preds, masks.float())
+        iou = iou_on_batch(masks, preds)
 
-            mask = torch.nn.functional.interpolate(
-                masks.float(),
-                size=preds.shape[-2:],
-                mode="nearest"
-            )
-            mask = (mask > 0.5).float()
+        dice_sum += dice
+        iou_sum += iou
 
-            if i == 0:
-                print("Image shape:", images.shape)
-                print("Mask shape:", masks.shape)
-                print("Image min/max:", images.min().item(), images.max().item())
-                print("Logit min/max:", preds.min().item(), preds.max().item())
-                print("Prob min/max:", torch.sigmoid(preds).min().item(), torch.sigmoid(preds).max().item())
-                
-            TP = (pred_mask * mask).sum()
-            TN = ((1 - pred_mask) * (1 - mask)).sum()
-            FP = (pred_mask * (1 - mask)).sum()
-            FN = ((1 - pred_mask) * mask).sum()
+        pbar.set_postfix({
+            "Dice": f"{dice_sum/(i+1):.4f}",
+            "IoU": f"{iou_sum/(i+1):.4f}"
+        })
 
-            TP_total += TP
-            TN_total += TN
-            FP_total += FP
-            FN_total += FN
+        # OPTIONAL: save predictions
+        pred_mask = (preds > 0.5).float()
+        pred_np = pred_mask[0, 0].cpu().numpy() * 255
+        pred_np = pred_np.astype(np.uint8)
 
-            # 🔥 Update tqdm live metrics
-            # pbar.set_postfix({
-            #     "Dice": f"{dice_sum/(i+1):.4f}",
-            #     "IoU": f"{iou_sum/(i+1):.4f}"
-            # })
-            smooth = 1e-6
-
-            dice_running = (2 * TP_total) / (2 * TP_total + FP_total + FN_total + smooth)
-            iou_running = TP_total / (TP_total + FP_total + FN_total + smooth)
-
-            pbar.set_postfix({
-                "Dice": f"{dice_running.item():.4f}",
-                "IoU": f"{iou_running.item():.4f}"
-            })
-            # Save prediction
-            # pred_prob = torch.sigmoid(preds)
-            # pred_mask = (pred_prob > 0.5).float()
-
-            pred_np = pred_mask[0, 0].cpu().numpy() * 255
-            pred_np = pred_np.astype(np.uint8)
-
-            save_file = os.path.join(save_path, names[0] + "_pred.png")
-            cv2.imwrite(save_file, pred_np)
-
-    smooth = 1e-6
-
-    sensitivity = TP_total / (TP_total + FN_total + smooth)
-    specificity = TN_total / (TN_total + FP_total + smooth)
-    accuracy = (TP_total + TN_total) / (TP_total + TN_total + FP_total + FN_total + smooth)
-    dice = (2 * TP_total) / (2 * TP_total + FP_total + FN_total + smooth)
-    iou = TP_total / (TP_total + FP_total + FN_total + smooth)
+        save_file = os.path.join(save_path, names[0] + "_pred.png")
+        cv2.imwrite(save_file, pred_np)
 
     print("\n================ Final Test Results ================")
-    print(f"Sensitivity (Recall): {sensitivity.item():.4f}")
-    print(f"Specificity         : {specificity.item():.4f}")
-    print(f"Accuracy            : {accuracy.item():.4f}")
-    print(f"IoU (Jaccard)       : {iou.item():.4f}")
-    print(f"Dice (F1-score)     : {dice.item():.4f}")
-    print("====================================================")        
+    print(f"Dice (F1-score) : {dice_sum/len(test_loader):.4f}")
+    print(f"IoU (Jaccard)   : {iou_sum/len(test_loader):.4f}")
+    print("====================================================")
+    smooth = 1e-6
+
+  
 
 ################################################################################
 # Run
