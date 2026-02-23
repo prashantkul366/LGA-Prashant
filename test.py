@@ -47,10 +47,19 @@ def load_model():
     model = model.cuda()
 
     # 🔥 PUT YOUR TRAINED SESSION NAME HERE
-    trained_session = "test_02.22_13h10"
+    # trained_session = "test_02.22_13h10"
+    trained_session = "test_02.21_22h52"
+
+    # best_model_path = os.path.join(
+    #     "BUSI_80-20_text",
+    #     "sam",
+    #     trained_session,
+    #     "models",
+    #     f"best_model-{config.model_name}.pth.tar"
+    # )
 
     best_model_path = os.path.join(
-        "BUSI_80-20_text",
+        "Kvasir_80_20_Text",
         "sam",
         trained_session,
         "models",
@@ -176,8 +185,11 @@ def test():
             mask = (masks > 0.5).float()
 
             if i == 0:
-                print("Pred unique values:", torch.unique(pred_mask))
-                print("Mask unique values:", torch.unique(mask))
+                print("Image shape:", images.shape)
+                print("Mask shape:", masks.shape)
+                print("Image min/max:", images.min().item(), images.max().item())
+                print("Logit min/max:", preds.min().item(), preds.max().item())
+                print("Prob min/max:", torch.sigmoid(preds).min().item(), torch.sigmoid(preds).max().item())
                 
             TP = (pred_mask * mask).sum()
             TN = ((1 - pred_mask) * (1 - mask)).sum()

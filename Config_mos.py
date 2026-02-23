@@ -28,8 +28,8 @@ pretrain = False
 pretrained_model = ""
 # task_name = 'MoNuSeg' 
 # task_name = 'MosMed' # Covid19, MosMed
-# task_name = 'Kvasir_80_20_Text'
-task_name = 'BUSI_80-20_text'
+task_name = 'Kvasir_80_20_Text'
+# task_name = 'BUSI_80-20_text'
 learning_rate = 1e-4  # MoNuSeg: 1e-3, Covid19: 3e-4
 batch_size = 2  # For LViT-T, 2 is better than 4
 
@@ -44,18 +44,18 @@ mean_text_flag = True
 
 
 #  KVASIR TEXT 
-# train_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train'
-# val_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val'
+train_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train'
+val_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val'
 
-# text_train = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train/Train_text.xlsx'
-# text_val = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val/Val_text.xlsx'
+text_train = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/train/Train_text.xlsx'
+text_val = '/content/drive/MyDrive/Prashant/research_datasets/Kvasir_80_20_TEXT_NEW/val/Val_text.xlsx'
 
 #  BUSI TEXT
-train_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/train'
-val_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/test'
+# train_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/train'
+# val_dataset = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/test'
 
-text_train = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/train/Train_text.xlsx'
-text_val = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/test/Test_text.xlsx'
+# text_train = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/train/Train_text.xlsx'
+# text_val = '/content/drive/MyDrive/Prashant/research_datasets/Dataset_BUSI_80_20_TEXT_NEW/test/Test_text.xlsx'
 
 
 session_name = 'test' + '_' + time.strftime('%m.%d_%Hh%M')
