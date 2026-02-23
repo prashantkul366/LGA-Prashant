@@ -47,24 +47,24 @@ def load_model():
     model = model.cuda()
 
     # 🔥 PUT YOUR TRAINED SESSION NAME HERE
-    # trained_session = "test_02.22_13h10"
-    trained_session = "test_02.21_22h52"
-
-    # best_model_path = os.path.join(
-    #     "BUSI_80-20_text",
-    #     "sam",
-    #     trained_session,
-    #     "models",
-    #     f"best_model-{config.model_name}.pth.tar"
-    # )
+    trained_session = "test_02.22_13h10"
+    # trained_session = "test_02.21_22h52"
 
     best_model_path = os.path.join(
-        "Kvasir_80_20_Text",
+        "BUSI_80-20_text",
         "sam",
         trained_session,
         "models",
         f"best_model-{config.model_name}.pth.tar"
     )
+
+    # best_model_path = os.path.join(
+    #     "Kvasir_80_20_Text",
+    #     "sam",
+    #     trained_session,
+    #     "models",
+    #     f"best_model-{config.model_name}.pth.tar"
+    # )
     checkpoint = torch.load(best_model_path)
     model.load_state_dict(checkpoint["state_dict"])
 
