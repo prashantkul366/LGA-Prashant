@@ -136,11 +136,18 @@ def test():
     model = load_model()
     test_loader = load_test_dataset()
 
-    sens_sum = 0
-    spec_sum = 0
-    acc_sum = 0
-    dice_sum = 0
-    iou_sum = 0
+    print("Testing dataset path:", config.val_dataset)
+    print("Text file:", config.text_val)
+    # sens_sum = 0
+    # spec_sum = 0
+    # acc_sum = 0
+    # dice_sum = 0
+    # iou_sum = 0
+
+    TP_total = 0
+    TN_total = 0
+    FP_total = 0
+    FN_total = 0
 
     save_path = os.path.join(config.save_path, "test_predictions")
     os.makedirs(save_path, exist_ok=True)
@@ -149,30 +156,56 @@ def test():
         pbar = tqdm(test_loader, desc="Testing", ncols=120)
 
         for i, (sampled_batch, names) in enumerate(pbar):
-
+            
             images = sampled_batch["image"].cuda()
             masks = sampled_batch["label"].cuda()
             text = sampled_batch["text"].cuda()
 
             preds = model(images, text)
 
-            sens, spec, acc, dice, iou = compute_metrics(preds, masks)
+            # sens, spec, acc, dice, iou = compute_metrics(preds, masks)
 
-            sens_sum += sens
-            spec_sum += spec
-            acc_sum += acc
-            dice_sum += dice
-            iou_sum += iou
+            # sens_sum += sens
+            # spec_sum += spec
+            # acc_sum += acc
+            # dice_sum += dice
+            # iou_sum += iou
 
-            # 🔥 Update tqdm live metrics
-            pbar.set_postfix({
-                "Dice": f"{dice_sum/(i+1):.4f}",
-                "IoU": f"{iou_sum/(i+1):.4f}"
-            })
-
-            # Save prediction
             pred_prob = torch.sigmoid(preds)
             pred_mask = (pred_prob > 0.5).float()
+            mask = (masks > 0.5).float()
+
+            if i == 0:
+                print("Pred unique values:", torch.unique(pred_mask))
+                print("Mask unique values:", torch.unique(mask))
+                
+            TP = (pred_mask * mask).sum()
+            TN = ((1 - pred_mask) * (1 - mask)).sum()
+            FP = (pred_mask * (1 - mask)).sum()
+            FN = ((1 - pred_mask) * mask).sum()
+
+            TP_total += TP
+            TN_total += TN
+            FP_total += FP
+            FN_total += FN
+
+            # 🔥 Update tqdm live metrics
+            # pbar.set_postfix({
+            #     "Dice": f"{dice_sum/(i+1):.4f}",
+            #     "IoU": f"{iou_sum/(i+1):.4f}"
+            # })
+            smooth = 1e-6
+
+            dice_running = (2 * TP_total) / (2 * TP_total + FP_total + FN_total + smooth)
+            iou_running = TP_total / (TP_total + FP_total + FN_total + smooth)
+
+            pbar.set_postfix({
+                "Dice": f"{dice_running.item():.4f}",
+                "IoU": f"{iou_running.item():.4f}"
+            })
+            # Save prediction
+            # pred_prob = torch.sigmoid(preds)
+            # pred_mask = (pred_prob > 0.5).float()
 
             pred_np = pred_mask[0, 0].cpu().numpy() * 255
             pred_np = pred_np.astype(np.uint8)
@@ -180,15 +213,21 @@ def test():
             save_file = os.path.join(save_path, names[0] + "_pred.png")
             cv2.imwrite(save_file, pred_np)
 
-    n = len(test_loader)
+    smooth = 1e-6
+
+    sensitivity = TP_total / (TP_total + FN_total + smooth)
+    specificity = TN_total / (TN_total + FP_total + smooth)
+    accuracy = (TP_total + TN_total) / (TP_total + TN_total + FP_total + FN_total + smooth)
+    dice = (2 * TP_total) / (2 * TP_total + FP_total + FN_total + smooth)
+    iou = TP_total / (TP_total + FP_total + FN_total + smooth)
 
     print("\n================ Final Test Results ================")
-    print(f"Sensitivity (Recall): {sens_sum/n:.4f}")
-    print(f"Specificity         : {spec_sum/n:.4f}")
-    print(f"Accuracy            : {acc_sum/n:.4f}")
-    print(f"IoU (Jaccard)       : {iou_sum/n:.4f}")
-    print(f"Dice (F1-score)     : {dice_sum/n:.4f}")
-    print("====================================================")
+    print(f"Sensitivity (Recall): {sensitivity.item():.4f}")
+    print(f"Specificity         : {specificity.item():.4f}")
+    print(f"Accuracy            : {accuracy.item():.4f}")
+    print(f"IoU (Jaccard)       : {iou.item():.4f}")
+    print(f"Dice (F1-score)     : {dice.item():.4f}")
+    print("====================================================")        
 
 ################################################################################
 # Run
