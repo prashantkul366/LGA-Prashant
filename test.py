@@ -48,7 +48,7 @@ def load_model():
 
     # 🔥 PUT YOUR TRAINED SESSION NAME HERE
     trained_session = "test_02.22_13h10"
-    
+
     best_model_path = os.path.join(
         "BUSI_80-20_text",
         "sam",
@@ -122,7 +122,7 @@ def load_test_dataset():
         num_workers=0,
         pin_memory=True
     )
-
+    # print("")
     print(f"Test dataset size: {len(test_dataset)}")
 
     return test_loader
@@ -146,7 +146,9 @@ def test():
     os.makedirs(save_path, exist_ok=True)
 
     with torch.no_grad():
-        for i, (sampled_batch, names) in enumerate(tqdm(test_loader, desc="Testing")):
+        pbar = tqdm(test_loader, desc="Testing", ncols=120)
+
+        for i, (sampled_batch, names) in enumerate(pbar):
 
             images = sampled_batch["image"].cuda()
             masks = sampled_batch["label"].cuda()
@@ -162,17 +164,19 @@ def test():
             dice_sum += dice
             iou_sum += iou
 
-            # Save prediction masks
-            # save_on_batch(images, masks, preds, names, save_path + "/")
-            # Convert logits → probability → binary
+            # 🔥 Update tqdm live metrics
+            pbar.set_postfix({
+                "Dice": f"{dice_sum/(i+1):.4f}",
+                "IoU": f"{iou_sum/(i+1):.4f}"
+            })
+
+            # Save prediction
             pred_prob = torch.sigmoid(preds)
             pred_mask = (pred_prob > 0.5).float()
 
-            # Convert to numpy
             pred_np = pred_mask[0, 0].cpu().numpy() * 255
             pred_np = pred_np.astype(np.uint8)
 
-            # Save mask
             save_file = os.path.join(save_path, names[0] + "_pred.png")
             cv2.imwrite(save_file, pred_np)
 
